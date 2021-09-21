@@ -14,7 +14,7 @@ int* pop_front(int arr[], int& n);
 int* erase(int arr[], int& n, int number1);
 void main()
 {
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "Ru");
 	int n;
 	cout << "¬ведите размер массива: "; cin >> n;
 	int* arr = new int[n];
