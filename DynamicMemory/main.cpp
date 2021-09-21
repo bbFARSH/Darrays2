@@ -6,9 +6,9 @@ using std::cout;
 void FillRand(int arr[], const unsigned int n);
 void Print(int arr[], const unsigned int n);
 
-int* push_back(int arr[], int& n, int value);
+void push_back(int*& arr, int& n, int value);
 int* push_front(int arr[], int& n, int value1);
-int* pop_back(int arr[], int& n);
+void pop_back(int*& arr, int& n);
 int* insert(int arr[], int& n, int number, int value2);
 int* pop_front(int arr[], int& n);
 int* erase(int arr[], int& n, int number1);
@@ -28,11 +28,11 @@ void main()
 	
 	int value;
 	cout << "¬ведите добавл€емое значение: "; cin >> value;
-	arr = push_back(arr, n, value);
+	push_back(arr, n, value);
 	Print(arr, n);
 	
 	Print(arr, n);
-	arr = pop_back(arr, n);
+	pop_back(arr, n);
 	
 	
 	int value2;
@@ -68,7 +68,7 @@ void Print(int arr[], const unsigned int n)
 	cout << endl;
 
 }
-int* push_back(int arr[], int& n, int value)
+void push_back(int*& arr, int& n, int value)
 {
 	Print(arr, n);
 	int* buffer = new int[n + 1];
@@ -81,15 +81,13 @@ int* push_back(int arr[], int& n, int value)
 	arr = buffer;
 	arr[n] = value;
 	n++;
-	return arr;
 }
-int* pop_back(int arr[], int& n)
+void pop_back(int*& arr, int& n)
 {
 	int* buffer = new int[--n];
 	for (int i = 0; i < n; i++) buffer[i] = arr[i];
 	delete[] arr;
-	return buffer;
-
+	arr = buffer;
 }
 int* push_front(int arr[], int& n, int value1)
 {
