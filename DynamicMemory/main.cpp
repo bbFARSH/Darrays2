@@ -5,8 +5,8 @@ using std::cout;
 
 int** allocate(const unsigned int rows, const unsigned int cols);
 void clear(int** arr, int rows);
-void FillRand(int arr[], const unsigned int n);
-void FillRand(int** arr, const unsigned int rows, const unsigned int cols);
+void FillRand(int arr[], const unsigned int n, int minRand = 0, int maxValue = 100);
+void FillRand(int** arr, const unsigned int rows, const unsigned int cols, int minRand = 0, int maxRand = 100);
 void Print(int arr[], const unsigned int n);
 void Print(int** arr, const unsigned int rows, const unsigned int cols);
 int* push_back(int arr[], int& n, int value);
@@ -16,7 +16,20 @@ int* insert(int arr[], int& n, int number, int value2);
 int* pop_front(int arr[], int& n);
 int* erase(int arr[], int& n, int number1);
 
-int** push_row_back(int** arr,  unsigned int& rows,  unsigned int cols);
+int** push_row_back(int** arr,  unsigned int& rows, const unsigned int cols);
+int** push_row_front(int** arr, unsigned int& rows, const unsigned int cols);
+int** push_row_insert(int** arr, unsigned int& rows, const unsigned int cols, const unsigned int index);
+int** pop_row_back(int** arr, unsigned int& rows);
+int** pop_row_front(int** arr, unsigned int& rows);
+int** pop_row_erase(int** arr, unsigned int& rows, const unsigned int index);
+
+void push_col_back(int** arr, const unsigned int rows, unsigned int& cols);
+void push_col_front(int** arr, const unsigned int rows, unsigned int& cols);
+//void push_col_insert(int** arr, const unsigned int rows, unsigned int& cols,const unsigned int index);
+void pop_col_back(int** arr, const unsigned int rows, unsigned int& cols);
+void pop_col_front(int** arr, const unsigned int rows, unsigned int& cols);
+void pop_col_erase(int** arr, const unsigned rows, unsigned int& cols);
+
 //#define DYNAMICMEMORY_1
 #define DYNAMICMEMORY_2
 void main()
@@ -65,24 +78,20 @@ void main()
 	cout << "Введите количество элементов строки: "; cin >> cols;
 	int** arr = allocate(rows, cols);
 	FillRand(arr, rows, cols);
-	Print(arr, rows, cols);
-	cout << "С добавлением строки";
-#ifdef Les2
-	int** arr = allocate(rows, cols);
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////      Объявление двумерного динамического массива       //////////////////////////////////////////
-	// 1) Объявляем указатель на указатель, и сохраняем в него адрес массива указателей: 
-	int** arr = new int* [rows];
-	// 2) Создаем строки ДДМ :
-	for (int i = 0; i < rows; i++)
-	{
-		arr[i] = new int[cols] {};
-	}
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////      Обращения к элементам двумерного ДДМ:        /////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#endif // Les2
 	arr = push_row_back(arr, rows, cols);
+	arr = push_row_front(arr, rows, cols);
+	Print(arr, rows, cols);
+	int index;
+	cout << "С добавлением строки" << endl; cin >> index;
+	arr = push_row_insert(arr, rows, cols, index);
+	Print(arr, rows, cols);
+	cout << endl;
+	arr = pop_row_back(arr, rows);
+	arr = pop_row_front(arr, rows);
+	Print(arr, rows, cols);
+	cout << "С удалением строки"; cin >> index;
+	arr = pop_row_erase(arr, rows, index);
+
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
@@ -90,10 +99,16 @@ void main()
 			cout << *(*(arr + i) + j) << "\t";
 		}
 		cout << endl;
-	}	
-	FillRand(arr, rows, cols);//заполняем значениями только новую добавленную строку
+	}	//заполняем значениями только новую добавленную строку
 	Print(arr, rows, cols);
-	clear(arr, rows);	
+	cout << "Добавление столбиков в конце" << endl;
+	push_col_back(arr, rows, cols);
+	for (int i = 0; i < rows; i++) arr[rows - 1][i] = rand();
+	Print(arr, rows, cols);
+	cout << "Добавление столбиков в начале" << endl;
+	push_col_front(arr, rows, cols);
+	Print(arr, rows, cols);
+
 }
 int** allocate(int const unsigned rows, const unsigned int cols)
 {
@@ -112,20 +127,20 @@ void clear(int** arr, int rows)
 	}
 	delete arr;
 }
-void FillRand(int arr[], const unsigned int n)
+void FillRand(int arr[], const unsigned int n, int minRand, int maxValue)
 {
 	for (int i = 0; i < n; i++)
 	{
-		arr[i] = rand() % 100;
+		arr[i] = rand() % (maxValue - minRand) + minRand;
 	}
 }
-void FillRand(int** arr, const unsigned int rows, const unsigned int cols)
+void FillRand(int** arr, const unsigned int rows, const unsigned int cols, int minRand, int maxRand)
 {
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
 		{
-			arr[i][j] = rand() % 100;
+			arr[i][j] = rand() % (maxRand - minRand) + minRand;
 		}
 	}
 }
@@ -219,7 +234,7 @@ int* erase(int arr[], int& n, int number1)
 	n--;
 	return arr;
 }
-int** push_row_back(int** arr, unsigned int& rows, unsigned int cols)
+int** push_row_back(int** arr, unsigned int& rows, const unsigned int cols)
 {
 	//1) Создаем буферный массив указателей
 	int** buffer = new int* [rows + 1];
@@ -238,4 +253,95 @@ int** push_row_back(int** arr, unsigned int& rows, unsigned int cols)
 	rows++;	
 	//7) ВОзвращаем новый массив на место вызова
 	return arr;
+}
+int** push_row_front(int** arr, unsigned int& rows, const unsigned int cols)
+{
+	int** buffer = new int* [rows + 1]{};
+	for (int i = 0; i < rows; i++)
+	{
+		buffer[i + 1] = arr[i];
+	}
+	delete[] arr;
+	arr = buffer;
+	arr[0] = new int[cols] {};
+	rows++;
+	return arr;
+}
+int** push_row_insert(int** arr, unsigned int& rows, const unsigned int cols, const unsigned int index)
+{
+	int** buffer = new int* [rows + 1];
+	for (int i = 0; i < rows; i++)
+	{
+		buffer[i] = arr[i];
+	}
+	delete[] arr;
+	arr = buffer;
+	for (int i = rows - 1; i >= index; i--)
+	{
+		arr[i + 1] = arr[i];
+	}
+	arr[index] = new int[cols] {};
+	rows++;
+	return arr;
+}
+int** pop_row_back(int** arr, unsigned int& rows)
+{
+	int** buffer = new int* [--rows]{};
+	for (int i = 0; i < rows; i++)
+	{
+		buffer[i] = arr[i];
+	}
+	delete[] arr;
+	arr = buffer;
+	return arr;
+}
+int** pop_row_front(int** arr, unsigned int& rows)
+{
+	for (int i = 1; i < rows; i++)
+	{
+		arr[i - 1] = arr[i];
+	}
+	rows--;
+	return arr;
+}
+int** pop_row_erase(int** arr, unsigned int& rows, const unsigned int index)
+{
+	for (int i = index; i < rows - 1; i++)
+	{
+		arr[i] = arr[i + 1];
+	}
+	rows--;
+	return arr;
+}
+void push_col_back(int** arr, const unsigned int rows, unsigned int& cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		//1) СОЗДАЕМ БУФФЕРНУЮ СТРОКУ, РАЗМЕРОМ НА ОДИН ЭЛЕМЕНТ БОЛЬШЕ
+		int* buffer = new int[cols + 1]{};
+		//2) КОПИРУЕМ ИСХОДНУЮ СТРОКУ В БУФФЕРНУЮ:
+		for (int j = 0; j < cols; j++)
+		{
+			buffer[j] = arr[i][j];
+		}
+		//3) Удаляем исходную строку
+		delete[] arr[i];
+		arr[i] = buffer;
+	}
+	//4) В КАЖДОЙ СТРОКЕ ДОБАВИЛОСЬ ПО ЭЛЕМЕНТУ, КОЛИЧЕСТВО СТОЛБЦОВ УВЕЛЕЧИЛОСЬ НА 1.
+	cols++;
+}
+void push_col_front(int** arr, const unsigned int rows, unsigned int& cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		int* buffer = new int[cols+1]{};
+		for (int j = 0; j < cols; j++)
+		{
+			buffer[j+1] = arr[i][j];
+		}
+		delete[] arr[i];
+		arr[i] = buffer;
+	}
+	cols++;
 }
