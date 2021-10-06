@@ -25,10 +25,9 @@ int** pop_row_erase(int** arr, unsigned int& rows, const unsigned int index);
 
 void push_col_back(int** arr, const unsigned int rows, unsigned int& cols);
 void push_col_front(int** arr, const unsigned int rows, unsigned int& cols);
-//void push_col_insert(int** arr, const unsigned int rows, unsigned int& cols,const unsigned int index);
+void push_col_insert(int** arr, const unsigned int rows, unsigned int& cols,const unsigned int number);
 void pop_col_back(int** arr, const unsigned int rows, unsigned int& cols);
 void pop_col_front(int** arr, const unsigned int rows, unsigned int& cols);
-void pop_col_erase(int** arr, const unsigned rows, unsigned int& cols);
 
 //#define DYNAMICMEMORY_1
 #define DYNAMICMEMORY_2
@@ -78,20 +77,22 @@ void main()
 	cout << "Введите количество элементов строки: "; cin >> cols;
 	int** arr = allocate(rows, cols);
 	FillRand(arr, rows, cols);
-	arr = push_row_back(arr, rows, cols);
-	arr = push_row_front(arr, rows, cols);
+	push_col_back(arr, rows, cols);
+	push_col_front(arr, rows, cols);
 	Print(arr, rows, cols);
-	int index;
-	cout << "С добавлением строки" << endl; cin >> index;
-	arr = push_row_insert(arr, rows, cols, index);
+	int number;
+	cout << "С добавлением строки" << endl; cin >> number;
+	push_col_insert(arr, rows, cols, number);
 	Print(arr, rows, cols);
 	cout << endl;
-	arr = pop_row_back(arr, rows);
-	arr = pop_row_front(arr, rows);
+	pop_col_back(arr, rows, cols);
 	Print(arr, rows, cols);
-	cout << "С удалением строки"; cin >> index;
-	arr = pop_row_erase(arr, rows, index);
+	cout << endl;
+	pop_col_front(arr, rows, cols);
+	Print(arr, rows, cols);
+	cout << endl;
 
+#ifdef DEBUG
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
@@ -101,13 +102,7 @@ void main()
 		cout << endl;
 	}	//заполняем значениями только новую добавленную строку
 	Print(arr, rows, cols);
-	cout << "Добавление столбиков в конце" << endl;
-	push_col_back(arr, rows, cols);
-	for (int i = 0; i < rows; i++) arr[rows - 1][i] = rand();
-	Print(arr, rows, cols);
-	cout << "Добавление столбиков в начале" << endl;
-	push_col_front(arr, rows, cols);
-	Print(arr, rows, cols);
+#endif // DEBUG
 
 }
 int** allocate(int const unsigned rows, const unsigned int cols)
@@ -340,6 +335,46 @@ void push_col_front(int** arr, const unsigned int rows, unsigned int& cols)
 		{
 			buffer[j+1] = arr[i][j];
 		}
+		delete[] arr[i];
+		arr[i] = buffer;
+	}
+	cols++;
+}
+void pop_col_back(int** arr, const unsigned int rows, unsigned int& cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		int* buffer = new int[cols - 1]{};
+		for (int j = 0; j < cols - 1; j++)
+		{
+			buffer[j] = arr[i][j];
+		}
+		delete[] arr[i];
+		arr[i] = buffer;
+	}
+	--cols;
+}
+void pop_col_front(int** arr, const unsigned int rows, unsigned int& cols)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		int* buffer = new int[cols - 1]{};
+		for (int j = 0; j < cols - 1; j++)
+		{
+			buffer[j] = arr[i][j + 1];
+		}
+		delete[] arr[i];
+		arr[i] = buffer;
+	}
+	--cols;
+}
+void push_col_insert(int** arr, const unsigned int rows, unsigned int& cols, const unsigned int number)
+{
+	for (int i = 0; i < rows; i++)
+	{
+		int* buffer = new int[cols + 1]{};
+		for (int j = 0; j < cols; j++)
+			buffer[j < number ? j : j + 1] = arr[i][j];
 		delete[] arr[i];
 		arr[i] = buffer;
 	}
