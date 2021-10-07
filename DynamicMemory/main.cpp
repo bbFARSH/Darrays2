@@ -1,3 +1,5 @@
+//DynamicTemplatedOptimase
+
 #include <iostream>
 using std::cin;
 using std::endl;
@@ -13,7 +15,7 @@ void FillRand(double** arr, const unsigned int rows, const unsigned int cols, in
 void FillRand(char** arr, const unsigned int rows, const unsigned int cols);
 template<typename T>void Print(T arr[], const unsigned int n);
 template<typename T>void Print(T** arr, const unsigned int rows, const unsigned int cols);
-template<typename T>T* push_back(T arr[], int& n, T value);
+template<typename T>T* push_back(T arr[], unsigned int& n, T value);
 template<typename T>T* push_front(T arr[], int& n, T value1);
 template<typename T>T* pop_back(T arr[], int& n);
 template<typename T>T* insert(T arr[], int& n, int number, T value2);
@@ -203,7 +205,7 @@ template<typename T>void Print(T** arr, const unsigned int rows, const unsigned 
 	}
 }
 
-template<typename T>T* push_back(T arr[], int& n, T value)
+template<typename T>T* push_back(T arr[], unsigned int& n, T value)
 {
 	Print(arr, n);
 	T* buffer = new T[n + 1];
@@ -294,18 +296,24 @@ template<typename T>T** push_row_front(T** arr, unsigned int& rows, const unsign
 	return arr;
 }
 template<typename T>T** push_row_back(T** arr, unsigned int& rows, const unsigned int cols)
+#ifdef OLD
 {
-	T** buffer = new T* [rows + 1]{};
+	T** buffer = new T * [rows + 1]{};
 	for (int i = 0; i < rows; i++)
 	{
 		buffer[i + 1] = arr[i];
 	}
 	delete[] arr;
 	arr = buffer;
-	arr[0] = new T[cols] {};
+	arr[0] = new T[cols]{};
 	rows++;
 	return arr;
 }
+#endif // OLD
+{
+	return push_back(arr, rows, new T[cols]{});
+}
+
 template<typename T>T** push_row_insert(T** arr, unsigned int& rows, const unsigned int cols, const unsigned int index)
 {
 	T** buffer = new T* [rows + 1];
@@ -388,6 +396,8 @@ template<typename T>void pop_col_back(T** arr, const unsigned int rows, unsigned
 {
 	for (int i = 0; i < rows; i++)
 	{
+#ifdef OLD2
+	{
 		T* buffer = new T[cols - 1]{};
 		for (int j = 0; j < cols - 1; j++)
 		{
@@ -397,6 +407,11 @@ template<typename T>void pop_col_back(T** arr, const unsigned int rows, unsigned
 		arr[i] = buffer;
 	}
 	--cols;
+#endif // OLD2
+	arr[i] = push_back(arr[i], cols, T()); // T() - значение по умолчанию для типа Т.
+	cols--;	
+	}
+	cols++;
 }
 template<typename T>void pop_col_front(T** arr, const unsigned int rows, unsigned int& cols)
 {
